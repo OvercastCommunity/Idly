@@ -1,24 +1,31 @@
 package tc.oc.occ.idly;
 
+import static net.kyori.adventure.key.Key.key;
+import static net.kyori.adventure.sound.Sound.sound;
 import static net.kyori.adventure.text.Component.text;
 
 import java.time.Duration;
 import java.time.Instant;
+import javax.annotation.Nullable;
+import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.sound.Sound;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.entity.Player;
 import tc.oc.pgm.api.PGM;
 import tc.oc.pgm.api.match.Match;
 import tc.oc.pgm.api.player.MatchPlayer;
 import tc.oc.pgm.util.bukkit.OnlinePlayerMapAdapter;
-import tc.oc.pgm.util.text.TemporalComponent;
 
 public class IdlyManager {
 
+  private final Idly plugin;
   private final IdlyConfig config;
   private final OnlinePlayerMapAdapter<Instant> playerMovementCache;
   private final OnlinePlayerMapAdapter<Instant> playerAfkCache;
 
   public IdlyManager(Idly plugin) {
+    this.plugin = plugin;
     this.config = plugin.getIdlyConfig();
     this.playerMovementCache = new OnlinePlayerMapAdapter<Instant>(plugin);
     this.playerAfkCache = new OnlinePlayerMapAdapter<Instant>(plugin);
@@ -64,6 +71,7 @@ public class IdlyManager {
 
   private boolean checkAFK(MatchPlayer player) {
     Match match = player.getMatch();
+    Audience viewer = plugin.getViewer(player.getBukkit());
 
     if (!isAFK(player.getBukkit())) return false;
     if (!match.isRunning()) return false;
@@ -71,23 +79,31 @@ public class IdlyManager {
     Instant afkTime = getAFKSince(player.getBukkit());
     Duration timeSinceAfk = Duration.between(afkTime, Instant.now());
     long secondsLeft = (config.getKickDelay() - timeSinceAfk.getSeconds()) + 1;
+    Component observers = text("Observers", NamedTextColor.AQUA);
 
     if (secondsLeft > 0) {
-      player.sendWarning(
+      sendWarning(
+          viewer,
           text()
               .append(text("You will be moved to "))
-              .append(match.getDefaultParty().getName())
-              .append(text(" in "))
-              .append(TemporalComponent.duration(secondsLeft, NamedTextColor.YELLOW))
-              .build());
+              .append(observers)
+              .append(text(" due to inactivity in "))
+              .append(text(secondsLeft, NamedTextColor.YELLOW))
+              .append(text(" second" + (secondsLeft != 1 ? "s" : "")))
+              .color(NamedTextColor.RED)
+              .build(),
+          COUNTDOWN);
     } else {
-      player.sendWarning(
+      match.setParty(player, match.getDefaultParty());
+      sendWarning(
+          viewer,
           text()
               .append(text("Moved to "))
-              .append(match.getDefaultParty().getName())
+              .append(observers)
               .append(text(" due to inactivity"))
-              .build());
-      match.setParty(player, match.getDefaultParty());
+              .color(NamedTextColor.RED)
+              .build(),
+          KICK);
       this.resetMovement(player.getBukkit());
       this.removeAFK(player.getBukkit());
     }
@@ -116,6 +132,18 @@ public class IdlyManager {
           }
         }
       }
+    }
+  }
+
+  private static final Component WARNING = text(" \u26a0 ", NamedTextColor.YELLOW);
+  private static final Sound COUNTDOWN = sound(key("random.break"), Sound.Source.MASTER, 1f, 1.15f);
+  private static final Sound KICK =
+      sound(key("mob.zombie.woodbreak"), Sound.Source.MASTER, 1f, 1.20f);
+
+  private void sendWarning(Audience viewer, Component message, @Nullable Sound sound) {
+    viewer.sendMessage(text().append(WARNING).append(message));
+    if (sound != null) {
+      viewer.playSound(sound);
     }
   }
 
