@@ -25,6 +25,10 @@
             <id>aikar</id>
             <url>https://repo.aikar.co/content/groups/aikar/</url>
         </repository>
+        <repository>
+            <id>electroid-repo</id>
+            <url>https://repo.ashcon.app/content/repositories/snapshots</url>
+        </repository>
     </repositories>
 
     <dependencies>
