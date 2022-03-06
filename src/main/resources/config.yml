@@ -1,0 +1,9 @@
+# Whether idle players are kicked or not
+enabled: true
+
+# Delay in seconds before a player is marked as AFK
+afk-delay: 60 # Seconds
+
+# Delay before player who is marked as AFK will be kicked
+kick-delay: 10 # Seconds
+
