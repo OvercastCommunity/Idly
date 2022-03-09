@@ -1,9 +1,35 @@
 # Whether idle players are kicked or not
 enabled: true
 
-# Delay in seconds before a player is marked as AFK
-afk-delay: 60 # Seconds
+# What to do when player is marked as inactive:
+# true = Kick from server 
+# false = Move to observers
+kick-mode: false
 
-# Delay before player who is marked as AFK will be kicked
-kick-delay: 10 # Seconds
+# Amount of time (in seconds) before participant is kicked
+participant-delay: 90
+
+# Amount of time (in seconds) before observer is kicked
+# (only works when kick-mode is true)
+observer-delay: 120
+
+# Duration of delay that will feature warning messages (in seconds)
+warning-duration: 15
+
+# Frequency between warning countdown messages (in seconds)
+warning-frequency: 5 
+
+# Only check for inactivity when match is running
+require-match-running: true
+
+# When true movement is tracked on pitch/yaw movement only
+precise-movement: true
+
+# Types of checks which log activity
+checks:
+  movement: true
+  chat: true
+  
+# Message sent to player when kicked from the server
+kick-message: "&c&lYou were kicked for being idle too long!"
 
