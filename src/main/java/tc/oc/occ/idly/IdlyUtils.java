@@ -1,13 +1,14 @@
 package tc.oc.occ.idly;
 
+import javax.annotation.Nullable;
+import org.bukkit.entity.Player;
 import tc.oc.pgm.api.PGM;
-import tc.oc.pgm.api.match.Match;
+import tc.oc.pgm.api.player.MatchPlayer;
 
 public class IdlyUtils {
 
-  public static Match getMatch() {
-    return PGM.get().getMatchManager().getMatches().hasNext()
-        ? PGM.get().getMatchManager().getMatches().next()
-        : null;
+  @Nullable
+  public static MatchPlayer getMatchPlayer(Player player) {
+    return PGM.get().getMatchManager().getPlayer(player);
   }
 }

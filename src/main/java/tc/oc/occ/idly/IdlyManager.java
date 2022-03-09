@@ -22,12 +22,12 @@ public class IdlyManager {
 
   private final Idly plugin;
   private final IdlyConfig config;
-  private final OnlinePlayerMapAdapter<Integer> playerInactivityTickCache;
+  private final OnlinePlayerMapAdapter<Integer> playerInactivityTicks;
 
   public IdlyManager(Idly plugin) {
     this.plugin = plugin;
     this.config = plugin.getIdlyConfig();
-    this.playerInactivityTickCache = new OnlinePlayerMapAdapter<Integer>(plugin);
+    this.playerInactivityTicks = new OnlinePlayerMapAdapter<Integer>(plugin);
 
     plugin
         .getServer()
@@ -36,31 +36,29 @@ public class IdlyManager {
   }
 
   public void logMovement(Player player) {
-    playerInactivityTickCache.put(player, 0);
+    playerInactivityTicks.put(player, 0);
   }
 
   private void checkPlayers() {
     if (!config.isEnabled()) return;
-    Match match = IdlyUtils.getMatch();
-    if (match != null) {
-      if (config.isRequireMatchRunning() && !plugin.getAPI().isMatchRunning()) return;
 
-      for (Player player : this.playerInactivityTickCache.keySet()) {
-        checkPlayer(match.getPlayer(player), plugin.getAPI().isPlaying(player));
-      }
+    for (Player player : this.playerInactivityTicks.keySet()) {
+      if (config.isRequireMatchRunning() && !plugin.getAPI().isMatchRunning(player)) continue;
+
+      checkPlayer(player, plugin.getAPI().isPlaying(player));
     }
   }
 
-  private void checkPlayer(MatchPlayer player, boolean isPlaying) {
+  private void checkPlayer(Player player, boolean isPlaying) {
     int inactivity =
-        playerInactivityTickCache.compute(
-            player.getBukkit(), (p, t) -> Objects.firstNonNull(t, 0) + TICK_FREQUENCY);
+        playerInactivityTicks.compute(
+            player, (p, t) -> Objects.firstNonNull(t, 0) + TICK_FREQUENCY);
 
     // Don't track observers when kick mode is disabled
     if (!config.isKickMode() && !isPlaying) return;
 
     // Ignore those with the bypass permission
-    if (player.getBukkit().hasPermission(IdlyPermissions.BYPASS)) return;
+    if (player.hasPermission(IdlyPermissions.BYPASS)) return;
 
     int duration = (isPlaying ? config.getParticipantDelay() : config.getObserverDelay());
     float remaining = duration - inactivity;
@@ -68,11 +66,11 @@ public class IdlyManager {
       kick(player);
     } else if (remaining <= config.getWarningDuration()
         && (remaining % config.getWarningFrequency()) < TICK_FREQUENCY) {
-      sendWarningCountdown(player.getBukkit(), remaining);
+      sendWarningCountdown(player, remaining);
     }
   }
 
-  private void kick(MatchPlayer player) {
+  private void kick(Player player) {
     if (config.isKickMode()) {
       kickFromServer(player);
     } else {
@@ -80,15 +78,16 @@ public class IdlyManager {
     }
   }
 
-  private void kickFromServer(MatchPlayer player) {
-    player.getBukkit().kickPlayer(config.getKickMessage());
+  private void kickFromServer(Player player) {
+    player.kickPlayer(config.getKickMessage());
   }
 
-  private void kickFromMatch(MatchPlayer player) {
-    Match match = player.getMatch();
-    Audience viewer = plugin.getViewer(player.getBukkit());
+  private void kickFromMatch(Player player) {
+    MatchPlayer mp = IdlyUtils.getMatchPlayer(player);
+    Match match = mp.getMatch();
+    Audience viewer = plugin.getViewer(player);
 
-    match.setParty(player, match.getDefaultParty());
+    match.setParty(mp, match.getDefaultParty());
     sendWarning(
         viewer,
         text()

@@ -4,7 +4,7 @@ import org.bukkit.entity.Player;
 
 public interface IdlyAPI {
 
-  boolean isMatchRunning();
+  boolean isMatchRunning(Player player);
 
   boolean isPlaying(Player player);
 }
