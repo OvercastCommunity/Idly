@@ -6,6 +6,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import tc.oc.pgm.api.party.Competitor;
+import tc.oc.pgm.events.PlayerPartyChangeEvent;
 
 public class IdlyListener implements Listener {
 
@@ -20,6 +22,13 @@ public class IdlyListener implements Listener {
   @EventHandler(priority = EventPriority.MONITOR)
   public void onPlayerJoin(PlayerJoinEvent event) {
     this.manager.logMovement(event.getPlayer());
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void onPlayerPartyChange(PlayerPartyChangeEvent event) {
+    if (event.getNewParty() != null && event.getNewParty() instanceof Competitor) {
+      this.manager.logMovement(event.getPlayer().getBukkit());
+    }
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
