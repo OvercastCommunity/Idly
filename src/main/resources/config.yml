@@ -17,7 +17,10 @@ observer-delay: 120
 warning-duration: 15
 
 # Frequency between warning countdown messages (in seconds)
-warning-frequency: 5 
+warning-frequency: 5
+
+# Allow player bypass with 'idly.bypass' permission
+bypass-enabled: true
 
 # Only check for inactivity when match is running
 require-match-running: true
