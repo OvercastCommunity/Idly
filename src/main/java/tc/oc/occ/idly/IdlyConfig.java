@@ -12,6 +12,7 @@ public class IdlyConfig {
   private int observerDelay;
   private int warningDuration;
   private int warningFrequency;
+  private boolean bypassEnabled;
   private boolean requireMatchRunning;
   private boolean preciseMovement;
   private boolean movementCheck;
@@ -46,6 +47,10 @@ public class IdlyConfig {
     return warningFrequency;
   }
 
+  public boolean isBypassEnabled() {
+    return bypassEnabled;
+  }
+
   public boolean isRequireMatchRunning() {
     return requireMatchRunning;
   }
@@ -73,6 +78,7 @@ public class IdlyConfig {
     this.observerDelay = config.getInt("observer-delay");
     this.warningDuration = config.getInt("warning-duration");
     this.warningFrequency = config.getInt("warning-frequency");
+    this.bypassEnabled = config.getBoolean("bypass-enabled", true);
     this.requireMatchRunning = config.getBoolean("require-match-running");
     this.preciseMovement = config.getBoolean("precise-movement");
     this.movementCheck = config.getBoolean("checks.movement");

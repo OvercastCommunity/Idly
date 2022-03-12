@@ -58,7 +58,7 @@ public class IdlyManager {
     if (!config.isKickMode() && !isPlaying) return;
 
     // Ignore those with the bypass permission
-    if (player.hasPermission(IdlyPermissions.BYPASS)) return;
+    if (config.isBypassEnabled() && player.hasPermission(IdlyPermissions.BYPASS)) return;
 
     int duration = (isPlaying ? config.getParticipantDelay() : config.getObserverDelay());
     float remaining = duration - inactivity;
