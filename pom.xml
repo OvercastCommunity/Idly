@@ -33,8 +33,8 @@
             <url>https://repo.aikar.co/content/groups/aikar/</url>
         </repository>
         <repository>
-            <id>electroid-repo</id>
-            <url>https://repo.ashcon.app/content/repositories/snapshots</url>
+            <id>pgm-repo-snapshots</id>
+            <url>https://repo.pgm.fyi/snapshots</url>
         </repository>
     </repositories>
 
