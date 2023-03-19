@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>tc.oc.occ</groupId>
     <artifactId>Idly</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.1.0-SNAPSHOT</version>
     <name>Idly</name>
     <description>Prevent players from going afk in PGM</description>
 
@@ -15,6 +15,13 @@
         <project.bukkit.main>tc.oc.occ.idly.Idly</project.bukkit.main>
         <project.author>applenick</project.author>
     </properties>
+
+    <distributionManagement>
+        <repository>
+            <id>pgm-repo-snapshots</id>
+            <url>https://repo.pgm.fyi/snapshots</url>
+        </repository>
+    </distributionManagement>
 
     <repositories>
         <repository>
@@ -44,12 +51,12 @@
         <dependency>
             <groupId>tc.oc.pgm</groupId>
             <artifactId>core</artifactId>
-            <version>0.13-SNAPSHOT</version>
+            <version>0.16-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>tc.oc.pgm</groupId>
             <artifactId>util</artifactId>
-            <version>0.13-SNAPSHOT</version>
+            <version>0.16-SNAPSHOT</version>
         </dependency>
 
         <!-- Command Framework -->

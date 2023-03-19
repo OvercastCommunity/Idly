@@ -7,6 +7,7 @@ import org.bukkit.configuration.Configuration;
 public class IdlyConfig {
 
   private boolean enabled;
+  private boolean verbose;
   private boolean kickMode;
   private int participantDelay;
   private int observerDelay;
@@ -17,7 +18,12 @@ public class IdlyConfig {
   private boolean preciseMovement;
   private boolean movementCheck;
   private boolean chatCheck;
+  private boolean cmdCheck;
   private String kickMessage;
+  private boolean autoVanish;
+  private String autoVanishPermission;
+  private int autoVanishDelay;
+  private int autoVanishRefresh;
 
   public IdlyConfig(Configuration config) {
     reload(config);
@@ -25,6 +31,10 @@ public class IdlyConfig {
 
   public boolean isEnabled() {
     return enabled;
+  }
+
+  public boolean isVerbose() {
+    return verbose;
   }
 
   public boolean isKickMode() {
@@ -67,12 +77,33 @@ public class IdlyConfig {
     return chatCheck;
   }
 
+  public boolean isCommandCheck() {
+    return cmdCheck;
+  }
+
   public String getKickMessage() {
     return ChatColor.translateAlternateColorCodes('&', kickMessage);
   }
 
+  public boolean isAutoVanish() {
+    return autoVanish;
+  }
+
+  public String getAutoVanishPermission() {
+    return autoVanishPermission;
+  }
+
+  public int getAutoVanishDelay() {
+    return autoVanishDelay;
+  }
+
+  public int getAutoVanishRefresh() {
+    return autoVanishRefresh;
+  }
+
   public void reload(Configuration config) {
     this.enabled = config.getBoolean("enabled");
+    this.verbose = config.getBoolean("verbose");
     this.kickMode = config.getBoolean("kick-mode");
     this.participantDelay = config.getInt("participant-delay");
     this.observerDelay = config.getInt("observer-delay");
@@ -83,7 +114,12 @@ public class IdlyConfig {
     this.preciseMovement = config.getBoolean("precise-movement");
     this.movementCheck = config.getBoolean("checks.movement");
     this.chatCheck = config.getBoolean("checks.chat");
+    this.cmdCheck = config.getBoolean("checks.command");
     this.kickMessage = config.getString("kick-message");
+    this.autoVanish = config.getBoolean("auto-vanish.enabled");
+    this.autoVanishPermission = config.getString("auto-vanish.permission-node");
+    this.autoVanishDelay = config.getInt("auto-vanish.delay");
+    this.autoVanishRefresh = config.getInt("auto-vanish.refresh");
 
     this.participantDelay = convertSettingTime(participantDelay);
     this.observerDelay = convertSettingTime(observerDelay);

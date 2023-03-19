@@ -15,6 +15,7 @@ public class Idly extends JavaPlugin {
   private BukkitCommandManager commands;
   private IdlyConfig config;
   private IdlyManager manager;
+  private IdlyAutoVanishManager vanishManager;
   private IdlyAPI api;
 
   @Override
@@ -27,6 +28,7 @@ public class Idly extends JavaPlugin {
     this.adventure = BukkitAudiences.create(this);
     this.api = new BaseIdlyAPI();
     this.manager = new IdlyManager(this);
+    this.vanishManager = new IdlyAutoVanishManager(config, manager);
 
     this.commands.registerDependency(IdlyConfig.class, config);
     this.commands.registerCommand(new IdlyCommand());
@@ -46,11 +48,19 @@ public class Idly extends JavaPlugin {
     return api;
   }
 
+  public IdlyManager getIdlyManager() {
+    return manager;
+  }
+
   public IdlyConfig getIdlyConfig() {
     return config;
   }
 
   public Audience getViewer(CommandSender sender) {
     return adventure.sender(sender);
+  }
+
+  public static void log(String message, Object... args) {
+    plugin.getLogger().info(String.format(message, args));
   }
 }

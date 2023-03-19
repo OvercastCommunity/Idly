@@ -1,6 +1,9 @@
 # Whether idle players are kicked or not
 enabled: true
 
+# Whether debug log messages are displayed to console
+verbose: true
+
 # What to do when player is marked as inactive:
 # true = Kick from server 
 # false = Move to observers
@@ -32,7 +35,20 @@ precise-movement: true
 checks:
   movement: true
   chat: true
+  command: true
   
 # Message sent to player when kicked from the server
 kick-message: "&c&lYou were kicked for being idle too long!"
 
+# Allow players to be auto-vanished if idle after a configurable period of time
+auto-vanish:
+  enabled: true
+  # Permission node required to auto-vanish when idle
+  permission-node: "idly.auto-vanish"
+  # Delay - how long a player must be idle for to be considered for auto-vanish
+  delay: 600 # Seconds
+  # Refresh - how often the auto-vanish task will run
+  refresh: 60 # Seconds
+  
+  
+  

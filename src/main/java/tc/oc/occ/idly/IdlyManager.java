@@ -39,6 +39,16 @@ public class IdlyManager {
     playerInactivityTicks.put(player, 0);
   }
 
+  public boolean isIdle(Player player, int timeoutSeconds) {
+    Integer inactivityTicks = playerInactivityTicks.get(player);
+    if (inactivityTicks == null) {
+      return false;
+    }
+
+    int maxInactivityTicks = timeoutSeconds * TICKS_PER_SECOND;
+    return inactivityTicks > maxInactivityTicks;
+  }
+
   private void checkPlayers() {
     if (!config.isEnabled()) return;
 

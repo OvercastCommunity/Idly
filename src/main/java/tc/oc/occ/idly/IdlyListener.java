@@ -4,6 +4,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import tc.oc.pgm.api.match.event.MatchStartEvent;
@@ -40,6 +41,13 @@ public class IdlyListener implements Listener {
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void onPlayerChatEvent(AsyncPlayerChatEvent event) {
     if (config.isChatCheck()) {
+      this.manager.logMovement(event.getPlayer());
+    }
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void onPlayerCommand(PlayerCommandPreprocessEvent event) {
+    if (config.isCommandCheck()) {
       this.manager.logMovement(event.getPlayer());
     }
   }
