@@ -14,7 +14,6 @@ public class IdlyConfig {
   private int warningDuration;
   private int warningFrequency;
   private boolean bypassEnabled;
-  private boolean requireMatchRunning;
   private boolean preciseMovement;
   private boolean movementCheck;
   private boolean chatCheck;
@@ -59,10 +58,6 @@ public class IdlyConfig {
 
   public boolean isBypassEnabled() {
     return bypassEnabled;
-  }
-
-  public boolean isRequireMatchRunning() {
-    return requireMatchRunning;
   }
 
   public boolean isPreciseMovement() {
@@ -110,7 +105,6 @@ public class IdlyConfig {
     this.warningDuration = config.getInt("warning-duration");
     this.warningFrequency = config.getInt("warning-frequency");
     this.bypassEnabled = config.getBoolean("bypass-enabled", true);
-    this.requireMatchRunning = config.getBoolean("require-match-running");
     this.preciseMovement = config.getBoolean("precise-movement");
     this.movementCheck = config.getBoolean("checks.movement");
     this.chatCheck = config.getBoolean("checks.chat");
