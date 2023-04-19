@@ -25,9 +25,6 @@ warning-frequency: 5
 # Allow player bypass with 'idly.bypass' permission
 bypass-enabled: true
 
-# Only check for inactivity when match is running
-require-match-running: true
-
 # When true movement is tracked on pitch/yaw movement only
 precise-movement: true
 

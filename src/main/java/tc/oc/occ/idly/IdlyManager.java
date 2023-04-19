@@ -5,15 +5,17 @@ import static net.kyori.adventure.sound.Sound.sound;
 import static net.kyori.adventure.text.Component.text;
 
 import com.google.common.base.Objects;
+import java.util.UUID;
 import javax.annotation.Nullable;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import tc.oc.occ.idly.utils.OnlinePlayerUUIDMapAdapter;
 import tc.oc.pgm.api.match.Match;
 import tc.oc.pgm.api.player.MatchPlayer;
-import tc.oc.pgm.util.bukkit.OnlinePlayerMapAdapter;
 
 public class IdlyManager {
 
@@ -22,12 +24,12 @@ public class IdlyManager {
 
   private final Idly plugin;
   private final IdlyConfig config;
-  private final OnlinePlayerMapAdapter<Integer> playerInactivityTicks;
+  private final OnlinePlayerUUIDMapAdapter<Integer> playerInactivityTicks;
 
   public IdlyManager(Idly plugin) {
     this.plugin = plugin;
     this.config = plugin.getIdlyConfig();
-    this.playerInactivityTicks = new OnlinePlayerMapAdapter<Integer>(plugin);
+    this.playerInactivityTicks = new OnlinePlayerUUIDMapAdapter<>(plugin);
 
     plugin
         .getServer()
@@ -36,11 +38,11 @@ public class IdlyManager {
   }
 
   public void logMovement(Player player) {
-    playerInactivityTicks.put(player, 0);
+    playerInactivityTicks.put(player.getUniqueId(), 0);
   }
 
   public boolean isIdle(Player player, int timeoutSeconds) {
-    Integer inactivityTicks = playerInactivityTicks.get(player);
+    Integer inactivityTicks = playerInactivityTicks.get(player.getUniqueId());
     if (inactivityTicks == null) {
       return false;
     }
@@ -52,25 +54,28 @@ public class IdlyManager {
   private void checkPlayers() {
     if (!config.isEnabled()) return;
 
-    for (Player player : this.playerInactivityTicks.keySet()) {
-      if (config.isRequireMatchRunning() && !plugin.getAPI().isMatchRunning(player)) continue;
-
-      checkPlayer(player, plugin.getAPI().isPlaying(player));
+    for (UUID uuid : this.playerInactivityTicks.keySet()) {
+      Player player = Bukkit.getPlayer(uuid);
+      if (player == null || !player.isOnline()) continue;
+      checkPlayer(player);
     }
   }
 
-  private void checkPlayer(Player player, boolean isPlaying) {
-    int inactivity =
-        playerInactivityTicks.compute(
-            player, (p, t) -> Objects.firstNonNull(t, 0) + TICK_FREQUENCY);
+  private void checkPlayer(Player player) {
+    // Ignore those with the bypass permission
+    if (config.isBypassEnabled() && player.hasPermission(IdlyPermissions.BYPASS)) return;
+
+    boolean isPlaying = plugin.getAPI().isPlaying(player);
 
     // Don't track observers when kick mode is disabled
     if (!config.isKickMode() && !isPlaying) return;
 
-    // Ignore those with the bypass permission
-    if (config.isBypassEnabled() && player.hasPermission(IdlyPermissions.BYPASS)) return;
-
     int duration = (isPlaying ? config.getParticipantDelay() : config.getObserverDelay());
+
+    int inactivity =
+        playerInactivityTicks.compute(
+            player.getUniqueId(), (p, t) -> Objects.firstNonNull(t, 0) + TICK_FREQUENCY);
+
     float remaining = duration - inactivity;
     if (remaining <= 0) {
       kick(player);
@@ -94,6 +99,8 @@ public class IdlyManager {
 
   private void kickFromMatch(Player player) {
     MatchPlayer mp = IdlyUtils.getMatchPlayer(player);
+    if (mp == null) return;
+
     Match match = mp.getMatch();
     Audience viewer = plugin.getViewer(player);
 

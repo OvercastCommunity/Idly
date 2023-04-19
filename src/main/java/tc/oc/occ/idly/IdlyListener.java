@@ -7,7 +7,8 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
-import tc.oc.pgm.api.match.event.MatchStartEvent;
+import tc.oc.pgm.api.match.MatchPhase;
+import tc.oc.pgm.api.match.event.MatchPhaseChangeEvent;
 import tc.oc.pgm.api.party.Competitor;
 import tc.oc.pgm.events.PlayerPartyChangeEvent;
 
@@ -34,8 +35,11 @@ public class IdlyListener implements Listener {
   }
 
   @EventHandler(priority = EventPriority.MONITOR)
-  public void onMatchStart(MatchStartEvent event) {
-    event.getMatch().getParticipants().forEach(p -> this.manager.logMovement(p.getBukkit()));
+  public void onMatchStart(MatchPhaseChangeEvent event) {
+    // Log participant activity when match starts (to avoid instant kicking)
+    if (event.getOldPhase() == MatchPhase.IDLE && event.getNewPhase() != MatchPhase.IDLE) {
+      event.getMatch().getParticipants().forEach(p -> this.manager.logMovement(p.getBukkit()));
+    }
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
