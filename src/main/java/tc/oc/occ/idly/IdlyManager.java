@@ -5,6 +5,7 @@ import static net.kyori.adventure.sound.Sound.sound;
 import static net.kyori.adventure.text.Component.text;
 
 import com.google.common.base.Objects;
+import java.util.Map;
 import java.util.UUID;
 import javax.annotation.Nullable;
 import net.kyori.adventure.audience.Audience;
@@ -54,8 +55,8 @@ public class IdlyManager {
   private void checkPlayers() {
     if (!config.isEnabled()) return;
 
-    for (UUID uuid : this.playerInactivityTicks.keySet()) {
-      Player player = Bukkit.getPlayer(uuid);
+    for (Map.Entry<UUID, Integer> entry : this.playerInactivityTicks.entrySetCopy()) {
+      Player player = Bukkit.getPlayer(entry.getKey());
       if (player == null || !player.isOnline()) continue;
       checkPlayer(player);
     }
