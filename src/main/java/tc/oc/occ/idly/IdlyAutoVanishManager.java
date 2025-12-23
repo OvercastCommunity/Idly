@@ -1,7 +1,5 @@
 package tc.oc.occ.idly;
 
-import static net.kyori.adventure.key.Key.key;
-import static net.kyori.adventure.sound.Sound.sound;
 import static net.kyori.adventure.text.Component.text;
 import static tc.oc.occ.idly.Idly.log;
 
@@ -13,11 +11,12 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import tc.oc.pgm.api.integration.Integration;
 import tc.oc.pgm.util.Audience;
+import tc.oc.pgm.util.bukkit.Sounds;
 
 public class IdlyAutoVanishManager {
 
   private final int PRE_AFK_DELAY = 5; // SECONDS
-  private final Sound WARN_SOUND = sound(key("note.pling"), Sound.Source.MASTER, 1f, 0.5f);
+  private final Sound WARN_SOUND = Sounds.sound("NOTE_PLING", "BLOCK_NOTE_BLOCK_PLING", 1f, 0.5f);
 
   private final IdlyConfig config;
   private final IdlyManager manager;

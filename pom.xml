@@ -9,8 +9,7 @@
     <description>Prevent players from going afk in PGM</description>
 
     <properties>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.release>21</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.bukkit.main>tc.oc.occ.idly.Idly</project.bukkit.main>
         <project.author>applenick</project.author>
@@ -25,10 +24,6 @@
 
     <repositories>
         <repository>
-            <id>jitpack.io</id>
-            <url>https://jitpack.io</url>
-        </repository>
-        <repository>
             <id>aikar</id>
             <url>https://repo.aikar.co/content/groups/aikar/</url>
         </repository>
@@ -41,9 +36,9 @@
     <dependencies>
         <!-- SportBukkit 1.8 -->
         <dependency>
-            <groupId>app.ashcon</groupId>
-            <artifactId>sportpaper</artifactId>
-            <version>1.8.8-R0.1-SNAPSHOT</version>
+            <groupId>dev.pgm.paper</groupId>
+            <artifactId>paper-api</artifactId>
+            <version>1.8_1.21.11-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
 
@@ -66,6 +61,22 @@
             <version>0.5.0-SNAPSHOT</version>
         </dependency>
 
+        <!-- Minecraft dependencies -->
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>17.0</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Annotations -->
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <version>26.0.2</version>
+            <scope>provided</scope>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -81,7 +92,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
+                <version>3.14.1</version>
                 <configuration>
                     <compilerArgs>
                         <arg>-parameters</arg> <!-- Required for aikar/commands to auto generate syntax -->
@@ -108,7 +119,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.2.3</version>
+                <version>3.6.1</version>
                 <configuration>
                     <createDependencyReducedPom>false</createDependencyReducedPom>
                     <minimizeJar>true</minimizeJar>
@@ -138,19 +149,23 @@
             </plugin>
             <!-- Validates that code is properly formatted with Google's code style -->
             <plugin>
-                <groupId>com.coveo</groupId>
+                <groupId>com.spotify.fmt</groupId>
                 <artifactId>fmt-maven-plugin</artifactId>
-                <version>2.9</version>
-                <configuration>
-                    <style>google</style>
-                </configuration>
+                <version>2.27</version>
                 <executions>
                     <execution>
                         <goals>
-                            <goal>check</goal>
+                            <goal>format</goal>
                         </goals>
                     </execution>
                 </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.google.googlejavaformat</groupId>
+                        <artifactId>google-java-format</artifactId>
+                        <version>1.27.0</version>
+                    </dependency>
+                </dependencies>
             </plugin>
         </plugins>
     </build>

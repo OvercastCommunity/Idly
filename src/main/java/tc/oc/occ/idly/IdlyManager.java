@@ -1,22 +1,21 @@
 package tc.oc.occ.idly;
 
-import static net.kyori.adventure.key.Key.key;
-import static net.kyori.adventure.sound.Sound.sound;
 import static net.kyori.adventure.text.Component.text;
 
 import com.google.common.base.Objects;
 import java.util.Map;
 import java.util.UUID;
-import javax.annotation.Nullable;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Nullable;
 import tc.oc.occ.idly.utils.OnlinePlayerUUIDMapAdapter;
 import tc.oc.pgm.api.match.Match;
 import tc.oc.pgm.api.player.MatchPlayer;
+import tc.oc.pgm.util.bukkit.Sounds;
 
 public class IdlyManager {
 
@@ -63,20 +62,19 @@ public class IdlyManager {
   }
 
   private void checkPlayer(Player player) {
-    // Ignore those with the bypass permission
-    if (config.isBypassEnabled() && player.hasPermission(IdlyPermissions.BYPASS)) return;
+    int inactivity =
+        playerInactivityTicks.compute(
+            player.getUniqueId(), (p, t) -> Objects.firstNonNull(t, 0) + TICK_FREQUENCY);
 
     boolean isPlaying = plugin.getAPI().isPlaying(player);
 
     // Don't track observers when kick mode is disabled
     if (!config.isKickMode() && !isPlaying) return;
 
+    // Ignore those with the bypass permission
+    if (config.isBypassEnabled() && player.hasPermission(IdlyPermissions.BYPASS)) return;
+
     int duration = (isPlaying ? config.getParticipantDelay() : config.getObserverDelay());
-
-    int inactivity =
-        playerInactivityTicks.compute(
-            player.getUniqueId(), (p, t) -> Objects.firstNonNull(t, 0) + TICK_FREQUENCY);
-
     float remaining = duration - inactivity;
     if (remaining <= 0) {
       kick(player);
@@ -139,9 +137,9 @@ public class IdlyManager {
 
   private static final Component OBSERVERS = text("Observers", NamedTextColor.AQUA);
   private static final Component WARNING = text(" \u26a0 ", NamedTextColor.YELLOW);
-  private static final Sound COUNTDOWN = sound(key("random.break"), Sound.Source.MASTER, 1f, 1.15f);
+  private static final Sound COUNTDOWN = Sounds.sound("ITEM_BREAK", "ENTITY_ITEM_BREAK", 1f, 1.15f);
   private static final Sound KICK =
-      sound(key("mob.zombie.woodbreak"), Sound.Source.MASTER, 1f, 1.20f);
+      Sounds.sound("ZOMBIE_WOODBREAK", "ENTITY_ZOMBIE_BREAK_WOODEN_DOOR", 1f, 1.2f);
 
   private void sendWarning(Audience viewer, Component message, @Nullable Sound sound) {
     viewer.sendMessage(text().append(WARNING).append(message));
