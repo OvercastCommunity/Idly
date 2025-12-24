@@ -1,7 +1,7 @@
 package tc.oc.occ.idly;
 
-import javax.annotation.Nullable;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Nullable;
 import tc.oc.pgm.api.PGM;
 import tc.oc.pgm.api.player.MatchPlayer;
 

@@ -1,12 +1,15 @@
 package tc.oc.occ.idly;
 
+import static net.kyori.adventure.text.Component.text;
+
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.CommandAlias;
 import co.aikar.commands.annotation.CommandPermission;
 import co.aikar.commands.annotation.Dependency;
 import co.aikar.commands.annotation.Subcommand;
-import org.bukkit.ChatColor;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.CommandSender;
+import tc.oc.pgm.util.Audience;
 
 @CommandAlias("idle|idly")
 @CommandPermission(IdlyPermissions.COMMAND)
@@ -20,6 +23,6 @@ public class IdlyCommand extends BaseCommand {
   public void reload(CommandSender sender) {
     plugin.reloadConfig();
     config.reload(plugin.getConfig());
-    sender.sendMessage(ChatColor.GREEN + "Idly config has been reloaded");
+    Audience.get(sender).sendMessage(text("Idly config has been reloaded", NamedTextColor.GREEN));
   }
 }
