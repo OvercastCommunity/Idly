@@ -14,8 +14,8 @@ import tc.oc.pgm.events.PlayerPartyChangeEvent;
 
 public class IdlyListener implements Listener {
 
-  private IdlyConfig config;
-  private IdlyManager manager;
+  private final IdlyConfig config;
+  private final IdlyManager manager;
 
   public IdlyListener(IdlyManager manager, IdlyConfig config) {
     this.manager = manager;

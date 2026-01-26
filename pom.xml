@@ -34,11 +34,11 @@
     </repositories>
 
     <dependencies>
-        <!-- SportBukkit 1.8 -->
+        <!-- Bukkit/Paper API -->
         <dependency>
             <groupId>dev.pgm.paper</groupId>
             <artifactId>paper-api</artifactId>
-            <version>1.8_1.21.11-SNAPSHOT</version>
+            <version>1.8_1.21.10-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
 
@@ -71,10 +71,9 @@
 
         <!-- Annotations -->
         <dependency>
-            <groupId>org.jetbrains</groupId>
-            <artifactId>annotations</artifactId>
-            <version>26.0.2</version>
-            <scope>provided</scope>
+            <groupId>org.jspecify</groupId>
+            <artifactId>jspecify</artifactId>
+            <version>1.0.0</version>
         </dependency>
 
     </dependencies>
