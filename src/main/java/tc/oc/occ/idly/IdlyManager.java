@@ -2,7 +2,6 @@ package tc.oc.occ.idly;
 
 import static net.kyori.adventure.text.Component.text;
 
-import com.google.common.base.Objects;
 import java.util.Map;
 import java.util.UUID;
 import net.kyori.adventure.audience.Audience;
@@ -11,7 +10,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import tc.oc.occ.idly.utils.OnlinePlayerUUIDMapAdapter;
 import tc.oc.pgm.api.match.Match;
 import tc.oc.pgm.api.player.MatchPlayer;
@@ -64,7 +63,7 @@ public class IdlyManager {
   private void checkPlayer(Player player) {
     int inactivity =
         playerInactivityTicks.compute(
-            player.getUniqueId(), (p, t) -> Objects.firstNonNull(t, 0) + TICK_FREQUENCY);
+            player.getUniqueId(), (p, t) -> (t != null ? t : 0) + TICK_FREQUENCY);
 
     boolean isPlaying = plugin.getAPI().isPlaying(player);
 
