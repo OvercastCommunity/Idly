@@ -3,10 +3,6 @@ package tc.oc.occ.idly;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.event.player.PlayerCommandPreprocessEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
 import tc.oc.pgm.api.match.MatchPhase;
 import tc.oc.pgm.api.match.event.MatchPhaseChangeEvent;
 import tc.oc.pgm.api.party.Competitor;
@@ -14,23 +10,16 @@ import tc.oc.pgm.events.PlayerPartyChangeEvent;
 
 public class IdlyListener implements Listener {
 
-  private final IdlyConfig config;
   private final IdlyManager manager;
 
-  public IdlyListener(IdlyManager manager, IdlyConfig config) {
+  public IdlyListener(IdlyManager manager) {
     this.manager = manager;
-    this.config = config;
-  }
-
-  @EventHandler(priority = EventPriority.MONITOR)
-  public void onPlayerJoin(PlayerJoinEvent event) {
-    this.manager.logMovement(event.getPlayer());
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void onPlayerPartyChange(PlayerPartyChangeEvent event) {
     if (event.getNewParty() != null && event.getNewParty() instanceof Competitor) {
-      this.manager.logMovement(event.getPlayer().getBukkit());
+      this.manager.logActivity(event.getPlayer().getBukkit());
     }
   }
 
@@ -38,34 +27,7 @@ public class IdlyListener implements Listener {
   public void onMatchStart(MatchPhaseChangeEvent event) {
     // Log participant activity when match starts (to avoid instant kicking)
     if (event.getOldPhase() == MatchPhase.IDLE && event.getNewPhase() != MatchPhase.IDLE) {
-      event.getMatch().getParticipants().forEach(p -> this.manager.logMovement(p.getBukkit()));
-    }
-  }
-
-  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-  public void onPlayerChatEvent(AsyncPlayerChatEvent event) {
-    if (config.isChatCheck()) {
-      this.manager.logMovement(event.getPlayer());
-    }
-  }
-
-  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-  public void onPlayerCommand(PlayerCommandPreprocessEvent event) {
-    if (config.isCommandCheck()) {
-      this.manager.logMovement(event.getPlayer());
-    }
-  }
-
-  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-  public void onPlayerMoveEvent(PlayerMoveEvent event) {
-    if (config.isMovementCheck()) {
-      boolean wasPitchYawMoved =
-          event.getFrom().getYaw() != event.getTo().getYaw()
-              || event.getFrom().getPitch() != event.getTo().getPitch();
-
-      if (config.isPreciseMovement() && !wasPitchYawMoved) return;
-
-      this.manager.logMovement(event.getPlayer());
+      event.getMatch().getParticipants().forEach(p -> this.manager.logActivity(p.getBukkit()));
     }
   }
 }

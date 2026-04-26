@@ -1,9 +1,6 @@
 package tc.oc.occ.idly;
 
-import co.aikar.commands.BukkitCommandManager;
-import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.platform.bukkit.BukkitAudiences;
-import org.bukkit.command.CommandSender;
+import co.aikar.commands.PaperCommandManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import tc.oc.occ.idly.api.BaseIdlyAPI;
 import tc.oc.occ.idly.api.IdlyAPI;
@@ -11,8 +8,7 @@ import tc.oc.occ.idly.api.IdlyAPI;
 public class Idly extends JavaPlugin {
 
   private static Idly plugin;
-  private BukkitAudiences adventure;
-  private BukkitCommandManager commands;
+  private PaperCommandManager commands;
   private IdlyConfig config;
   private IdlyManager manager;
   private IdlyAutoVanishManager vanishManager;
@@ -24,8 +20,7 @@ public class Idly extends JavaPlugin {
     this.saveDefaultConfig();
     this.reloadConfig();
     this.config = new IdlyConfig(this.getConfig());
-    this.commands = new BukkitCommandManager(this);
-    this.adventure = BukkitAudiences.create(this);
+    this.commands = new PaperCommandManager(this);
     this.api = new BaseIdlyAPI();
     this.manager = new IdlyManager(this);
     this.vanishManager = new IdlyAutoVanishManager(config, manager);
@@ -33,7 +28,7 @@ public class Idly extends JavaPlugin {
     this.commands.registerDependency(IdlyConfig.class, config);
     this.commands.registerCommand(new IdlyCommand());
 
-    this.getServer().getPluginManager().registerEvents(new IdlyListener(manager, config), this);
+    this.getServer().getPluginManager().registerEvents(new IdlyListener(manager), this);
   }
 
   public static Idly get() {
@@ -54,10 +49,6 @@ public class Idly extends JavaPlugin {
 
   public IdlyConfig getIdlyConfig() {
     return config;
-  }
-
-  public Audience getViewer(CommandSender sender) {
-    return adventure.sender(sender);
   }
 
   public static void log(String message, Object... args) {

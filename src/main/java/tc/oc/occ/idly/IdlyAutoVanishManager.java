@@ -3,8 +3,6 @@ package tc.oc.occ.idly;
 import static net.kyori.adventure.text.Component.text;
 import static tc.oc.occ.idly.Idly.log;
 
-import java.util.List;
-import java.util.stream.Collectors;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
@@ -39,12 +37,12 @@ public class IdlyAutoVanishManager {
     logMessage("- Delay: %d seconds", config.getAutoVanishDelay());
     logMessage("- Refresh: %d seconds", config.getAutoVanishRefresh());
 
-    List<Player> staff =
+    var staff =
         Bukkit.getOnlinePlayers().stream()
             .filter(p -> p.hasPermission(config.getAutoVanishPermission()))
             .filter(p -> !Integration.isVanished(p) && Integration.getNick(p) == null)
             .filter(p -> manager.isIdle(p, config.getAutoVanishDelay()))
-            .collect(Collectors.toList());
+            .toList();
 
     logMessage("- Found %d AFK player(s) to vanish!", staff.size());
 

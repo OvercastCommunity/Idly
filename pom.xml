@@ -58,7 +58,7 @@
         <!-- Command Framework -->
         <dependency>
             <groupId>co.aikar</groupId>
-            <artifactId>acf-bukkit</artifactId>
+            <artifactId>acf-paper</artifactId>
             <version>0.5.1-SNAPSHOT</version>
         </dependency>
 
@@ -120,7 +120,6 @@
                     <minimizeJar>true</minimizeJar>
                     <artifactSet>
                         <includes>
-                            <include>net.kyori:*:*</include>
                             <include>co.aikar:*</include>
                         </includes>
                     </artifactSet>

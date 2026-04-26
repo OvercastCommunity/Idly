@@ -24,15 +24,6 @@ warning-frequency: 5
 
 # Allow player bypass with 'idly.bypass' permission
 bypass-enabled: true
-
-# When true movement is tracked on pitch/yaw movement only
-precise-movement: true
-
-# Types of checks which log activity
-checks:
-  movement: true
-  chat: true
-  command: true
   
 # Message sent to player when kicked from the server
 kick-message: "&c&lYou were kicked for being idle too long!"
@@ -46,6 +37,3 @@ auto-vanish:
   delay: 600 # Seconds
   # Refresh - how often the auto-vanish task will run
   refresh: 60 # Seconds
-  
-  
-  

@@ -2,33 +2,36 @@ package tc.oc.occ.idly;
 
 import static net.kyori.adventure.text.Component.text;
 
-import java.util.Map;
-import java.util.UUID;
-import net.kyori.adventure.audience.Audience;
+import java.time.Duration;
+import java.time.Instant;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jspecify.annotations.Nullable;
-import tc.oc.occ.idly.utils.OnlinePlayerUUIDMapAdapter;
+import tc.oc.pgm.api.PGM;
 import tc.oc.pgm.api.match.Match;
 import tc.oc.pgm.api.player.MatchPlayer;
+import tc.oc.pgm.util.Audience;
+import tc.oc.pgm.util.bukkit.OnlinePlayerUUIDMapAdapter;
 import tc.oc.pgm.util.bukkit.Sounds;
+import tc.oc.pgm.util.listener.AfkTracker;
 
 public class IdlyManager {
 
   private static final int TICK_FREQUENCY = 10;
-  private static final int TICKS_PER_SECOND = 20;
+  private static final Duration CHECK_FREQUENCY = Duration.ofMillis(TICK_FREQUENCY * 50L);
 
   private final Idly plugin;
   private final IdlyConfig config;
-  private final OnlinePlayerUUIDMapAdapter<Integer> playerInactivityTicks;
+  private final OnlinePlayerUUIDMapAdapter<Instant> lastActivity;
+
+  private Instant now = Instant.now();
 
   public IdlyManager(Idly plugin) {
     this.plugin = plugin;
     this.config = plugin.getIdlyConfig();
-    this.playerInactivityTicks = new OnlinePlayerUUIDMapAdapter<>(plugin);
+    this.lastActivity = new OnlinePlayerUUIDMapAdapter<>(plugin);
 
     plugin
         .getServer()
@@ -36,35 +39,39 @@ public class IdlyManager {
         .scheduleSyncRepeatingTask(plugin, this::checkPlayers, 0L, TICK_FREQUENCY);
   }
 
-  public void logMovement(Player player) {
-    playerInactivityTicks.put(player.getUniqueId(), 0);
+  public void logActivity(Player player) {
+    lastActivity.put(player.getUniqueId(), now);
   }
 
   public boolean isIdle(Player player, int timeoutSeconds) {
-    Integer inactivityTicks = playerInactivityTicks.get(player.getUniqueId());
-    if (inactivityTicks == null) {
-      return false;
+    Duration timeout = Duration.ofSeconds(timeoutSeconds);
+    return getInactivityDuration(player).compareTo(timeout) > 0;
+  }
+
+  private Duration getInactivityDuration(Player player) {
+    // Use PGM's activity tracker, but if Idly has separately tracked
+    // more recent activity, we will use that timestamp instead
+    AfkTracker.Activity activity = PGM.get().getAfkTracker().getActivity(player);
+
+    Instant lastLogged = lastActivity.get(player.getUniqueId());
+    if (lastLogged == null || lastLogged.isBefore(activity.getLastActive())) {
+      return activity.getAfkDuration();
     }
 
-    int maxInactivityTicks = timeoutSeconds * TICKS_PER_SECOND;
-    return inactivityTicks > maxInactivityTicks;
+    return Duration.between(lastLogged, now);
   }
 
   private void checkPlayers() {
+    now = Instant.now();
+
     if (!config.isEnabled()) return;
 
-    for (Map.Entry<UUID, Integer> entry : this.playerInactivityTicks.entrySetCopy()) {
-      Player player = Bukkit.getPlayer(entry.getKey());
-      if (player == null || !player.isOnline()) continue;
+    for (Player player : plugin.getServer().getOnlinePlayers()) {
       checkPlayer(player);
     }
   }
 
   private void checkPlayer(Player player) {
-    int inactivity =
-        playerInactivityTicks.compute(
-            player.getUniqueId(), (p, t) -> (t != null ? t : 0) + TICK_FREQUENCY);
-
     boolean isPlaying = plugin.getAPI().isPlaying(player);
 
     // Don't track observers when kick mode is disabled
@@ -73,14 +80,29 @@ public class IdlyManager {
     // Ignore those with the bypass permission
     if (config.isBypassEnabled() && player.hasPermission(IdlyPermissions.BYPASS)) return;
 
-    int duration = (isPlaying ? config.getParticipantDelay() : config.getObserverDelay());
-    float remaining = duration - inactivity;
-    if (remaining <= 0) {
+    Duration timeout = getIdleTimeout(isPlaying);
+    if (timeout.isNegative()) return;
+
+    Duration remaining = timeout.minus(getInactivityDuration(player));
+    if (remaining.isNegative()) {
       kick(player);
-    } else if (remaining <= config.getWarningDuration()
-        && (remaining % config.getWarningFrequency()) < TICK_FREQUENCY) {
+    } else if (remaining.compareTo(getWarningDuration()) <= 0
+        && getWarningRemainder(remaining).compareTo(CHECK_FREQUENCY) < 0) {
       sendWarningCountdown(player, remaining);
     }
+  }
+
+  private Duration getIdleTimeout(boolean isPlaying) {
+    return Duration.ofSeconds(isPlaying ? config.getParticipantDelay() : config.getObserverDelay());
+  }
+
+  private Duration getWarningDuration() {
+    return Duration.ofSeconds(config.getWarningDuration());
+  }
+
+  private Duration getWarningRemainder(Duration remaining) {
+    Duration frequency = Duration.ofSeconds(config.getWarningFrequency());
+    return remaining.minus(frequency.multipliedBy(remaining.dividedBy(frequency)));
   }
 
   private void kick(Player player) {
@@ -100,7 +122,7 @@ public class IdlyManager {
     if (mp == null) return;
 
     Match match = mp.getMatch();
-    Audience viewer = plugin.getViewer(player);
+    var viewer = Audience.get(player);
 
     match.setParty(mp, match.getDefaultParty());
     sendWarning(
@@ -114,9 +136,9 @@ public class IdlyManager {
         KICK);
   }
 
-  private void sendWarningCountdown(Player player, float tickTime) {
-    int time = Math.round(tickTime / TICKS_PER_SECOND);
-    Audience viewer = plugin.getViewer(player);
+  private void sendWarningCountdown(Player player, Duration remaining) {
+    long time = Math.max(1, remaining.toSeconds());
+    var viewer = Audience.get(player);
     sendWarning(
         viewer,
         text()
