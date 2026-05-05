@@ -9,12 +9,18 @@ verbose: true
 # false = Move to observers
 kick-mode: false
 
+# Whether observers can be kicked when kick-mode is enabled
+kick-observers: false
+
 # Amount of time (in seconds) before participant is kicked
 participant-delay: 90
 
 # Amount of time (in seconds) before observer is kicked
-# (only works when kick-mode is true)
+# (only works when kick-mode and kick-observers are true)
 observer-delay: 120
+
+# Amount of time (in seconds) before kicks are enforced after match start
+enforcement-delay: 4
 
 # Duration of delay that will feature warning messages (in seconds)
 warning-duration: 15

@@ -1,6 +1,7 @@
 package tc.oc.occ.idly;
 
 import static net.kyori.adventure.text.Component.text;
+import static tc.oc.pgm.util.bukkit.Sounds.sound;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -8,15 +9,15 @@ import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.entity.Player;
-import org.jspecify.annotations.Nullable;
+import org.jspecify.annotations.NullMarked;
 import tc.oc.pgm.api.PGM;
 import tc.oc.pgm.api.match.Match;
 import tc.oc.pgm.api.player.MatchPlayer;
 import tc.oc.pgm.util.Audience;
 import tc.oc.pgm.util.bukkit.OnlinePlayerUUIDMapAdapter;
-import tc.oc.pgm.util.bukkit.Sounds;
 import tc.oc.pgm.util.listener.AfkTracker;
 
+@NullMarked
 public class IdlyManager {
 
   private static final int TICK_FREQUENCY = 10;
@@ -40,10 +41,27 @@ public class IdlyManager {
   }
 
   public void logActivity(Player player) {
+    now = Instant.now();
+
     lastActivity.put(player.getUniqueId(), now);
   }
 
+  public void applyEnforcementDelay(Player player) {
+    now = Instant.now();
+
+    Duration timeout = Duration.ofSeconds(config.getParticipantDelay());
+    Duration cooldown = Duration.ofSeconds(config.getEnforcementDelay());
+    Duration grace = cooldown.compareTo(timeout) > 0 ? timeout : cooldown;
+    Duration inactivity = getInactivityDuration(player);
+
+    if (inactivity.compareTo(timeout.minus(grace)) > 0) {
+      lastActivity.put(player.getUniqueId(), now.minus(timeout.minus(grace)));
+    }
+  }
+
   public boolean isIdle(Player player, int timeoutSeconds) {
+    now = Instant.now();
+
     Duration timeout = Duration.ofSeconds(timeoutSeconds);
     return getInactivityDuration(player).compareTo(timeout) > 0;
   }
@@ -74,16 +92,15 @@ public class IdlyManager {
   private void checkPlayer(Player player) {
     boolean isPlaying = plugin.getAPI().isPlaying(player);
 
-    // Don't track observers when kick mode is disabled
-    if (!config.isKickMode() && !isPlaying) return;
+    // Only check observers if kicking observers is enabled as well as kick mode
+    if (!isPlaying && (!config.isKickMode() || !config.isKickObservers())) return;
 
     // Ignore those with the bypass permission
     if (config.isBypassEnabled() && player.hasPermission(IdlyPermissions.BYPASS)) return;
 
     Duration timeout = getIdleTimeout(isPlaying);
-    if (timeout.isNegative()) return;
-
     Duration remaining = timeout.minus(getInactivityDuration(player));
+
     if (remaining.isNegative()) {
       kick(player);
     } else if (remaining.compareTo(getWarningDuration()) <= 0
@@ -158,14 +175,12 @@ public class IdlyManager {
 
   private static final Component OBSERVERS = text("Observers", NamedTextColor.AQUA);
   private static final Component WARNING = text(" \u26a0 ", NamedTextColor.YELLOW);
-  private static final Sound COUNTDOWN = Sounds.sound("ITEM_BREAK", "ENTITY_ITEM_BREAK", 1f, 1.15f);
+  private static final Sound COUNTDOWN = sound("ITEM_BREAK", "ENTITY_ITEM_BREAK", 1f, 1.15f);
   private static final Sound KICK =
-      Sounds.sound("ZOMBIE_WOODBREAK", "ENTITY_ZOMBIE_BREAK_WOODEN_DOOR", 1f, 1.2f);
+      sound("ZOMBIE_WOODBREAK", "ENTITY_ZOMBIE_BREAK_WOODEN_DOOR", 1f, 1.2f);
 
-  private void sendWarning(Audience viewer, Component message, @Nullable Sound sound) {
+  private void sendWarning(Audience viewer, Component message, Sound sound) {
     viewer.sendMessage(text().append(WARNING).append(message));
-    if (sound != null) {
-      viewer.playSound(sound);
-    }
+    viewer.playSound(sound);
   }
 }
