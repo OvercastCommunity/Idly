@@ -10,7 +10,7 @@ verbose: true
 kick-mode: false
 
 # Whether observers can be kicked when kick-mode is enabled
-kick-observers: false
+kick-observers: true
 
 # Amount of time (in seconds) before participant is kicked
 participant-delay: 90

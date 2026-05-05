@@ -89,7 +89,7 @@ public class IdlyConfig {
     this.enabled = config.getBoolean("enabled", true);
     this.verbose = config.getBoolean("verbose", false);
     this.kickMode = config.getBoolean("kick-mode", false);
-    this.kickObservers = config.getBoolean("kick-observers", false);
+    this.kickObservers = config.getBoolean("kick-observers", true);
     this.participantDelay = config.getInt("participant-delay", 90);
     this.observerDelay = config.getInt("observer-delay", 120);
     this.enforcementDelay = config.getInt("enforcement-delay", 4);
